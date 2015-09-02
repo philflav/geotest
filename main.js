@@ -61,16 +61,9 @@ if (Meteor.isClient) {
                     geocoder.geocode({'location': latlng}, function(results, status) {
                     if (status === google.maps.GeocoderStatus.OK) {
                         if (results[1]) {
-                           // map.setZoom(11);
-                           // var marker = new google.maps.Marker({
-                               // position: latlng,
-                              //  map: map
-                            //});
-                            infowindow.setContent(results[1].formatted_address);
-                            Session.set("location",(results[1].formatted_address));
+                          Session.set("location",(results[1].formatted_address));
                           } else {
-                            Session.set("location","no location found");
-
+                          Session.set("location","no location found");
                         }
                     } else {
                         window.alert('Geocoder failed due to: ' + status);
