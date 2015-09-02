@@ -13,6 +13,9 @@ if (Meteor.isClient) {
                     zoom: 8
                 };
             }
+        },
+        location: function () {
+            return Session.get('location');
         }
     });
     Template.map.onCreated(function () {
@@ -35,6 +38,7 @@ if (Meteor.isClient) {
                         // We store the document _id on the marker in order
                         // to update the document within the 'dragend' event below.
                         id: document._id
+
                     });
 
                     // This listener lets us drag markers on the map and update their corresponding document.
@@ -50,7 +54,28 @@ if (Meteor.isClient) {
                     markers[document._id] = marker;
                 },
                 changed: function (newDocument, oldDocument) {
-                    markers[newDocument._id].setPosition({lat: newDocument.lat, lng: newDocument.lng});
+                    var marker=markers[newDocument._id].setPosition({lat: newDocument.lat, lng: newDocument.lng});
+                    var infowindow = new google.maps.InfoWindow;
+                    var geocoder = new google.maps.Geocoder;
+                    var latlng = {lat: newDocument.lat, lng: newDocument.lng};
+                    geocoder.geocode({'location': latlng}, function(results, status) {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        if (results[1]) {
+                           // map.setZoom(11);
+                           // var marker = new google.maps.Marker({
+                               // position: latlng,
+                              //  map: map
+                            //});
+                            infowindow.setContent(results[1].formatted_address);
+                            Session.set("location",(results[1].formatted_address));
+                          } else {
+                            Session.set("location","no location found");
+
+                        }
+                    } else {
+                        window.alert('Geocoder failed due to: ' + status);
+                    }
+                });
                 },
                 removed: function (oldDocument) {
                     // Remove the marker from the map
