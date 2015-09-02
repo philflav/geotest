@@ -42,7 +42,7 @@ if (Meteor.isClient) {
                         Markers.update(marker.id, {$set: {lat: event.latLng.lat(), lng: event.latLng.lng()}});
                     });
                     //This listener lets us delete a marker using right click
-                    google.maps.event.addListener(map.instance, 'rightclick', function (event) {
+                    google.maps.event.addListener(marker, 'rightclick', function (event) {
                         Markers.remove(marker.id);
                     });
 
