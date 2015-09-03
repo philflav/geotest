@@ -40,7 +40,20 @@ if (Meteor.isClient) {
                         id: document._id
 
                     });
-
+                    //Find location fro dropped pin
+                    var geocoder = new google.maps.Geocoder;
+                    var latlng =   marker.position;
+                    geocoder.geocode({'location': latlng}, function(results, status) {
+                            if (status === google.maps.GeocoderStatus.OK) {
+                                if (results[1]) {
+                                    Session.set("location",(results[1].formatted_address));
+                                } else {
+                                    Session.set("location","no location found");
+                                }
+                            } else {
+                                window.alert('Geocoder failed due to: ' + status);
+                            }
+                    });
                     // This listener lets us drag markers on the map and update their corresponding document.
                     google.maps.event.addListener(marker, 'dragend', function (event) {
                         Markers.update(marker.id, {$set: {lat: event.latLng.lat(), lng: event.latLng.lng()}});
