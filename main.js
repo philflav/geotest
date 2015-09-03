@@ -2,15 +2,47 @@ Markers = new Mongo.Collection('markers');
 
 if (Meteor.isClient) {
     Meteor.startup(function () {
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        function success(pos) {
+            var crd = pos.coords;
+
+            console.log('Your current position is:');
+            console.log('Latitude : ' + crd.latitude);
+            console.log('Longitude: ' + crd.longitude);
+            console.log('More or less ' + crd.accuracy + ' meters.');
+            Session.set('currentLat', crd.latitude);
+            Session.set('currentLng', crd.longitude);
+        }
+
+        function error(err) {
+            console.warn('ERROR(' + err.code + '): ' + err.message);
+        }
+        // check for Geolocation support
+        if (navigator.geolocation) {
+            console.log('Geolocation is supported!');
+            navigator.geolocation.getCurrentPosition(success,error,options);
+
+        }
+        else {
+            console.log('Geolocation is not supported for this Browser/OS version yet.');
+        }
         GoogleMaps.load();
     });
 
     Template.map.helpers({
         mapOptions: function () {
             if (GoogleMaps.loaded()) {
+                var currentLatitude= Session.get('currentLat');
+                var currentLongitude= Session.get('currentLng');
+                console.log(currentLatitude+ " " + currentLongitude);
                 return {
-                    center: new google.maps.LatLng(52.0, -1.0),
-                    zoom: 8
+                    center: new google.maps.LatLng(currentLatitude, currentLongitude),
+                    zoom: 10
                 };
             }
         },
@@ -68,7 +100,6 @@ if (Meteor.isClient) {
                 },
                 changed: function (newDocument, oldDocument) {
                     var marker=markers[newDocument._id].setPosition({lat: newDocument.lat, lng: newDocument.lng});
-                    var infowindow = new google.maps.InfoWindow;
                     var geocoder = new google.maps.Geocoder;
                     var latlng = {lat: newDocument.lat, lng: newDocument.lng};
                     geocoder.geocode({'location': latlng}, function(results, status) {
