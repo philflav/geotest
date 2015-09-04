@@ -111,7 +111,7 @@ if (Meteor.isClient) {
                             var address_components = results[1].address_components;
                             var components={};
                             jQuery.each(address_components, function(k,v1) {jQuery.each(v1.types, function(k2, v2){components[v2]=v1.long_name});})
-                          Session.set("location",components.locality);
+                          Session.set("location",components.locality+","+components.country);
                           } else {
                           Session.set("location","no location found");
                         }
